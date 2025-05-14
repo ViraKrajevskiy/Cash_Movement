@@ -6,3 +6,4 @@ urlpatterns = [
     path('edit/<int:pk>/', dds_edit_view, name='dds_edit'),
     path('delete/<int:pk>/', dds_delete_view, name='dds_delete'),
 ]
+
