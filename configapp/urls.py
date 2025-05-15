@@ -8,7 +8,7 @@ urlpatterns = [
     path('delete/<int:pk>/', dds_delete_view, name='dds_delete'),
 
     # Status URLs
-    path('statuses/', status_list_view, name='status_list'),
+    path('', status_list_view, name='status_list'),
     path('status/create/', status_create_view, name='status_create'),
     path('status/edit/<int:pk>/', status_edit_view, name='status_edit'),
     path('status/delete/<int:pk>/', status_delete_view, name='status_delete'),

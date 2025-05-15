@@ -2,12 +2,13 @@ from django import forms
 from configapp.models import Status, Subcategory, Category, Type
 
 
-class StatusForm(forms.Form):
-    name = forms.CharField(
-        label='Название статуса',
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
+class StatusForm(forms.ModelForm):
+    class Meta:
+        model = Status
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
+        }
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
@@ -17,12 +18,14 @@ class StatusForm(forms.Form):
 
 
 
-class TypeForm(forms.Form):
-    name = forms.CharField(
-        label='Название типа',
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
+class TypeForm(forms.ModelForm):
+    class Meta:
+        model = Type
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
@@ -33,18 +36,14 @@ class TypeForm(forms.Form):
 
 
 
-class CategoryForm(forms.Form):
-    name = forms.CharField(
-        label='Название категории',
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-
-    type = forms.ModelChoiceField(
-        label='Тип',
-        queryset=Type.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name', 'type']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'type': forms.Select(attrs={'class': 'form-control'})
+        }
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
@@ -52,24 +51,41 @@ class CategoryForm(forms.Form):
             raise forms.ValidationError('Название категории обязательно для заполнения.')
         return name
 
+    def clean(self):
+        cleaned_data = super().clean()
+        category_type = cleaned_data.get('type')
+
+        # Проверка, чтобы категория была привязана к типу
+        if not category_type:
+            raise forms.ValidationError({'type': 'Выберите тип категории.'})
+
+        return cleaned_data
 
 
-class SubcategoryForm(forms.Form):
-    name = forms.CharField(
-        label='Название подкатегории',
-        max_length=50,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
 
-    category = forms.ModelChoiceField(
-        label='Категория',
-        queryset=Category.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
+
+class SubcategoryForm(forms.ModelForm):
+    class Meta:
+        model = Subcategory
+        fields = ['name', 'category']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control'})
+        }
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
         if not name:
             raise forms.ValidationError('Название подкатегории обязательно для заполнения.')
         return name
-        
+
+    def clean(self):
+        cleaned_data = super().clean()
+        category = cleaned_data.get('category')
+
+        # Проверка, чтобы подкатегория была привязана к категории
+        if not category:
+            raise forms.ValidationError({'category': 'Выберите категорию для подкатегории.'})
+
+        return cleaned_data
+

@@ -30,7 +30,7 @@ class Transaction(models.Model):
     date_created = models.DateField(auto_now_add=True, blank=True, null=True)
     status = models.ForeignKey('Status', on_delete=models.CASCADE)
     type = models.ForeignKey('Type', on_delete=models.CASCADE)
-    category = models.ForeignKey('configapp.Category', on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     subcategory = models.ForeignKey('configapp.Subcategory', on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     comment = models.TextField(blank=True, null=True)
@@ -50,11 +50,11 @@ class Transaction(models.Model):
             raise ValidationError({'subcategory': 'Поле "Подкатегория" обязательно для заполнения.'})
 
         # Проверка соответствия категории выбранному типу
-        if self.category.type != self.type:
+        if self.category and self.type and self.category.type != self.type:
             raise ValidationError({'category': 'Выбранная категория не соответствует выбранному типу.'})
 
         # Проверка соответствия подкатегории выбранной категории
-        if self.subcategory.category != self.category:
+        if self.subcategory and self.category and self.subcategory.category != self.category:
             raise ValidationError({'subcategory': 'Выбранная подкатегория не принадлежит выбранной категории.'})
 
     def save(self, *args, **kwargs):
