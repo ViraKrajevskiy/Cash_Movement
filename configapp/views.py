@@ -44,7 +44,7 @@ def dds_list_view(request):
         if date_to:
             records = records.filter(date_created__lte=date_to)
 
-    # Применение других фильтров
+    
     if status:
         records = records.filter(status_id=status)
     if type_:
